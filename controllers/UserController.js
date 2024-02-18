@@ -37,7 +37,6 @@ const userLogin = async(req,res)=>{
 const { email, password } = req.body;
 try{
   const user = await User.findOne({ email});
-  console.log(user,"user")
   if(user){
       const match = await bcrypt.compare(password, user.password);
       if(!match){
@@ -46,10 +45,8 @@ try{
       }
       const token = jwt.sign({ email }, 'secret');
       res.status(200).json({ token:token,userID:user._id });
-      
   }
   else  {
-    console.log("jvhdjh")
     res.status(200).json({message:'Invalid credentials'});
   }
 }
