@@ -35,19 +35,29 @@ const userRegister =  async (req, res) => {
 }
 const userLogin = async(req,res)=>{
 const { email, password } = req.body;
-const user = await User.findOne({ email});
-console.log(user)
-if(user){
-    const match = await bcrypt.compare(password, user.password);
-    console.log(match,password)
-    if(match){
-        const token = jwt.sign({ email }, 'secret');
-        res.status(200).json({ token:token,userID:user._id });
-    }
+try{
+  const user = await User.findOne({ email});
+  console.log(user,"user")
+  if(user){
+      const match = await bcrypt.compare(password, user.password);
+      if(!match){
+        res.status(200).json({message:'Invalid credentials'});
+        return;
+      }
+      const token = jwt.sign({ email }, 'secret');
+      res.status(200).json({ token:token,userID:user._id });
+      
+  }
+  else  {
+    console.log("jvhdjh")
+    res.status(200).json({message:'Invalid credentials'});
+  }
 }
-else  {
-  return res.status(200).json({message:'Invalid credentials'});
+catch(err){
+  console.log(err)
+  res.status(500).json({status:false,message:"Internal server error"});
 }
+
 
 }
 const getUserDetails = async(req,res)=>{
@@ -56,10 +66,15 @@ try{
     const userDetails = await User.find({_id:userID},{password:0})
     const fileDetails = await Files.find({userID:userID}).sort({createdAt:-1})
     let userData = {userInfo:userDetails,files:fileDetails}
-    res.status(200).json({userData,messgae:"Record found successfully"})
+    if(!userDetails){
+      res.status(200).json({status:false,messgae:"User not found"})
+      return;
+    }
+    res.status(200).json({status:true,userData,messgae:"Record found successfully"})
 }
 catch(err){
     console.log("error",err)
+    res.status(500).json({status:false,message:"Internal server error"});
 }
 
 }

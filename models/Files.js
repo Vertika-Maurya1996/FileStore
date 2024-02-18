@@ -6,8 +6,6 @@ const fileSchema = new Schema({
     path: String,
     userID:String,
     code:String,
-    type:String,
-    
   },
   {
     collection: 'userFiles',
